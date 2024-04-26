@@ -10,11 +10,11 @@ from typing import List
 task_wait_random = __import__('3-tasks').task_wait_random
 
 
-def task_wait_n(n: int, max_delay: int) -> List[float]:
+async def task_wait_n(n: int, max_delay: int = 10) -> List[float]:
     """
-    Returns a list of delays in ascending order
+    takes 2 two args n and max_delay and returns the list of all the delays
     """
-    delays: List[float] = []
-    for i in range(n):
-        delays.append(task_wait_random(max_delay))
-    return sorted(delays)
+    tasks = [task_wait_random(max_delay) for _ in range(n)]
+    completed = await asyncio.gather(*tasks)
+    return sorted(completed)
+
