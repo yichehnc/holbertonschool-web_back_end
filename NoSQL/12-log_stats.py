@@ -7,18 +7,29 @@ from pymongo import MongoClient
 
 if __name__ == "__main__":
     client = MongoClient("localhost", 27017)
-    db = client.logs
-    collection = db.nginx
-    docs = collection.count_documents({})
+    co = client.logs.nginx
 
-    print("{} logs".format(docs))
+    methods = {
+        'GET': 0,
+        'POST': 0,
+        'PUT': 0,
+        'PATCH': 0,
+        'DELETE': 0
+    }
+    status_count = 0
+    for v in co.find():
+        if 'method' in v:
+            if v['method'] in methods:
+                methods[v['method']] = methods[v['method']] + 1
+
+            if v['method'] == 'GET' and 'path' in v and v['path'] == '/status':
+                status_count = status_count + 1
+
+    print("{0} logs".format(co.count_documents({})))
     print("Methods:")
-
-    methods = ["GET", "POST", "PUT", "PATCH", "DELETE"]
-
-    for method in methods:
-        count = collection.count_documents({"method": method})
-        print("\tmethod {}: {}".format(method, count))
-        filter_path = {"method": method, "path": "/status"}
-
-    print("{} status check".format(collection.count_documents(filter_path)))
+    print("\tmethod GET: {0}".format(methods['GET']))
+    print("\tmethod POST: {0}".format(methods['POST']))
+    print("\tmethod PUT: {0}".format(methods['PUT']))
+    print("\tmethod PATCH: {0}".format(methods['PATCH']))
+    print("\tmethod DELETE: {0}".format(methods['DELETE']))
+    print("{0} status check".format(status_count))
