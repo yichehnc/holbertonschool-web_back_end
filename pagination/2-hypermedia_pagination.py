@@ -4,7 +4,7 @@ Uses the function index_range from 0-simple_helper_function.py.
 Implement a method named get_page that takes two integer arguments page with
 default value 1 and page_size with default value 10.
 """
-from typing import Tuple, List
+from typing import Tuple, List, Dict
 import csv
 import math
 
@@ -45,3 +45,17 @@ class Server:
             reader = csv.reader(f)
             dataset = [row for row in reader]
         return dataset[start:end]
+
+    def get_hyper(self, page: int = 1, page_size: int = 10) -> Dict:
+        """
+        Returns a dictionary containing the specified key-value pairs
+        """
+        total_pages = math.ceil(len(self.dataset()) / page_size)
+        return {
+            'page_size': len(self.get_page(page, page_size)),
+            'page': page,
+            'data': self.get_page(page, page_size),
+            'next_page': page + 1 if page < total_pages else None,
+            'prev_page': page - 1 if page > 1 else None,
+            'total_pages': total_pages
+        }
